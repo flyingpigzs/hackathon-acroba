@@ -1,11 +1,23 @@
-import os
+import os,sys
+
+
+def install_nvidia_toolkit(is_wls):
+    if is_wls:
+        pass
+    else:
+        os.system("curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list")
+        os.system("apt-get update && apt-get install -y nvidia-container-toolkit")
+
 
 
 def install_requirements():
-    os.system("apt-get update && apt-get install -y git apt-transport-https ca-certificates curl software-properties-common")
+    os.system("apt-get update && apt-get install -y git apt-transport-https ca-certificates curl software-properties-common make")
     os.system("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg")
     os.system('echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null')
-    os.system('sudo apt update && sudo apt install -y docker-ce')
+    os.system('apt update && sudo apt install -y docker-ce')
 
 
 def check_git():
@@ -53,10 +65,35 @@ def credential_validation():
 
 def main():
     print("Welcome to ACROBA!")
+    print("\n")
+    print("We'll need the root privilege to install ACROBA-Platform.")
+    if os.geteuid() == 0:
+        print("You are running this program as root.")
+    else:
+        print("You are not running this program as root. Maybe you forget sudo?")
+        return
+
+    # Checking the system information
+    print("Checking system information...")
+    sys_info = os.popen('cat /proc/version').read()
+    pci_info = os.popen('lspci').read()
+    if 'WSL' in sys_info:
+        print("The system is running under WSL.")
+        is_wls = True
+    else:
+        print("The system is not running under WSL.")
+        is_wls = False
+    if 'NVIDIA' in pci_info:
+        print("You have NVIDIA GPU(s).")
+        has_nvidia = True
+    else:
+        print("You don't have a NVIDIA GPU.")
+        has_nvidia = False
 
     # Checking the software requirements
+    print("\n")
     while True:
-        answer = input("First, we will check the requirements. Y(yes) / N(quit) ")
+        answer = input("Start to check the software requirements. Y(yes) / N(quit) ")
         if answer.lower() == "y":
             meet_requirements = check_requirements()
             break
@@ -65,12 +102,17 @@ def main():
 
     # Install the requirements
     while not meet_requirements:
-        answer = input("We are going to install the requirements. Y(yes) / N(quit) ")
+        answer = input("We are going to install the software requirements. Y(yes) / N(quit) ")
         if answer.lower() == "y":
             install_requirements()
             meet_requirements = check_requirements()
         elif answer.lower() == "n":
             return
+
+    # Install Nvidia Toolkit for linux
+    if has_nvidia and not is_wls:
+        print("You have NVIDIA GPU(s), we're going to install the NVIDIA toolkit.")
+        install_nvidia_toolkit(is_wls)
 
     # Asking for credential
     print("Requirements are all meet. We need your credentials to download ACROBA-Platform")
@@ -97,4 +139,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    with open('output.log', 'w') as f:
+        sys.stdout = f
+        sys.stderr = f
+        main()
