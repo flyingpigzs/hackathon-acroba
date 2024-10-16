@@ -12,7 +12,6 @@ def install_nvidia_toolkit(is_wls):
         os.system("apt-get update && apt-get install -y nvidia-container-toolkit")
 
 
-
 def install_requirements():
     os.system("apt-get update && apt-get install -y git apt-transport-https ca-certificates curl software-properties-common make")
     os.system("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg")
@@ -55,12 +54,12 @@ def check_requirements():
     return meet_requirements
 
 
-def credential_validation():
-    exit_code = os.system('git config --global credential.helper store && git clone git@github.com:ACROBA-Project/ACROBA-Platform.git')
-    if exit_code == 0:
-        return True
-    else:
-        return False
+# def credential_validation():
+#     exit_code = os.system('git config --global credential.helper store && git clone git@github.com:ACROBA-Project/ACROBA-Platform.git')
+#     if exit_code == 0:
+#         return True
+#     else:
+#         return False
 
 
 def main():
@@ -115,13 +114,13 @@ def main():
         install_nvidia_toolkit(is_wls)
 
     # Asking for credential
-    print("Requirements are all meet. We need your credentials to download ACROBA-Platform")
-    credential_saved = credential_validation()
-    if credential_saved:
-        print("Your credential is saved.")
-    else:
-        print("Your credential is invalid. Please contact ACROBA.")
-        return
+    # print("Requirements are all meet. We need your credentials to download ACROBA-Platform")
+    # credential_saved = credential_validation()
+    # if credential_saved:
+    #     print("Your credential is saved.")
+    # else:
+    #     print("Your credential is invalid. Please contact ACROBA.")
+    #     return
 
     # Installing ACROBA-Platform
     print("Downloading ACROBA-Platform...")
