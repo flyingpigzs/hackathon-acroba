@@ -133,7 +133,7 @@ def main():
     os.system('')
 
     print("Running ACROBA-Platform...")
-    exit_code = os.system('cd setup/code/platform && make run')
+    exit_code = os.system('cd setup/code/platform && make run GPU=NO')
     if exit_code == 0:
         print("ACROBA-Platform starts and running.")
 
