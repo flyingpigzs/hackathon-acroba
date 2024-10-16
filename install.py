@@ -125,12 +125,13 @@ def main():
 
     # Installing ACROBA-Platform
     print("Downloading ACROBA-Platform...")
-    exit_code = os.system('cd ACROBA-Platform && ./make pull TAG=latest')
+    exit_code = os.system('git clone https://github.com/acroba-hackathon/setup.git && cd setup')
     if exit_code == 0:
         print("ACROBA-Platform download successful.")
     else:
         print("ACROBA-Platform download failed. Please contact ACROBA.")
         return
+    os.system('./setup.sh')
 
     print("Running ACROBA-Platform...")
     exit_code = os.system('make run X11=NO GPU=NO')
@@ -140,6 +141,6 @@ def main():
 
 if __name__ == '__main__':
     with open('output.log', 'w') as f:
-        sys.stdout = f
-        sys.stderr = f
+        # sys.stdout = f
+        # sys.stderr = f
         main()
